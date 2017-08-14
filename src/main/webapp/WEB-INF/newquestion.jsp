@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
@@ -18,9 +19,11 @@
 	    
 	    <br><br>
 	    
-	    <form:label path="tags">Tags: 
-	    <form:errors path="tags"/>
-	    <form:input path="tags"/></form:label>
+	    <c:if test="${!empty errors}">
+	    		<p>${errors}</p>
+	    </c:if>
+	    <label for="tagsStr">Tags: </label>
+	    <input type="text" name="tagsStr" id="tagsStr">
 	    
 	    <br><br>
 	    

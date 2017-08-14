@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.chaocharliehuang.dojooverflow.models.*;
 import com.chaocharliehuang.dojooverflow.services.*;
@@ -39,7 +40,11 @@ public class DojoOverflow {
 	}
 	
 	@GetMapping("questions/new")
-	public String newQuestion(@ModelAttribute("q") Question question) {
+	public String newQuestion(
+			@ModelAttribute("errors") String errors,
+			@ModelAttribute("q") Question question,
+			Model model) {
+		model.addAttribute("errors", errors);
 		return "newquestion.jsp";
 	}
 	
@@ -47,11 +52,15 @@ public class DojoOverflow {
 	public String createQuestion(
 			@Valid @ModelAttribute("q") Question question,
 			BindingResult result,
-			@RequestParam(value="tags") String tagsStr,
+			@RequestParam(value="tagsStr") String tagsStr,
+			RedirectAttributes redirectAttributes,
 			Model model) {
-//		if (result.hasErrors()) {
-//			return "newquestion.jsp";
-//		} else {
+		if (result.hasErrors()) {
+			return "newquestion.jsp";
+		} else if (tagsStr.length() < 1) {
+			redirectAttributes.addFlashAttribute("errors", "Tags cannot be blank!");
+			return "redirect:/questions/new";
+		} else {
 			questionService.addQuestion(question);
 			List<Tag> questionTags = new ArrayList<Tag>();
 			String[] tagsArr = tagsStr.split(", ");
@@ -66,7 +75,7 @@ public class DojoOverflow {
 			question.setTags(questionTags);
 			questionService.updateQuestion(question);
 			return "redirect:/questions/" + question.getId();
-//		}
+		}
 	}
 	
 	@GetMapping("questions/{id}")
